@@ -6,6 +6,8 @@ import pynmea2 as nmea
 import adafruit_bme280
 import board
 import busio
+import requests as r
+import json
 
 def main():
     # serial object for gps
@@ -38,24 +40,24 @@ def main():
 
         imu_data = {
             'angle': {
-                'x': imu.prevAngle[0][0],
-                'y': imu.prevAngle[0][1],
-                'z': imu.prevAngle[0][2],
+                'x': round(imu.prevAngle[0][0], 1),
+                'y': round(imu.prevAngle[0][1], 1),
+                'z': round(imu.prevAngle[0][2], 1)
             },
             'acceleration': {
-                'x': accel[0],
-                'y': accel[1],
-                'z': accel[2],
+                'x': round(accel[0], 1),
+                'y': round(accel[1], 1),
+                'z': round(accel[2], 1)
             },
             'gyro': {
-                'x': gyr[0],
-                'y': gyr[1],
-                'z': gyr[2],
+                'x': round(gyr[0], 1),
+                'y': round(gyr[1], 1),
+                'z': round(gyr[2], 1)
             },
             'mag': {
-                'x': magn[0],
-                'y': magn[1],
-                'z': magn[2],
+                'x': round(magn[0], 1),
+                'y': round(magn[1], 1),
+                'z': round(magn[2], 1)
             }
         }
         
@@ -84,18 +86,19 @@ def main():
 
         # gather barometer/temp data
         barometer_data = {
-            'temp': bme.temperature,
-            'humidity': bme.humidity,
-            'pressure': bme.pressure,
-            'baro_alt': bme.altitude
+            'temp': round(bme.temperature, 2),
+            'humidity': round(bme.humidity, 2),
+            'pressure': round(bme.pressure, 2),
+            'baro_alt': round(bme.altitude, 2)
         }
         
         # entire data packet of all gathered info
         data = {**imu_data, **gps_data, **barometer_data}
 
         print(data)
+        r.post("http://24.64.233.134:8592/in", json=data)
 
-        time.sleep(5)
+        #time.sleep(5)
 
 if __name__ == "__main__":
     main()
