@@ -29,16 +29,19 @@ def main():
     while True:
         # gather IMU data
 
-        # update IMU 30 times
-        i = 0
-        while i < 30: imu.updateYaw(); i += 1; time.sleep(0.004)
+        # update IMU Angle 30 times
+        for _ in range(30): imu.updateAngle(); time.sleep(0.004)
 
         accel = imu.readAccelerometer()
         gyr = imu.readGyro()
         magn = imu.readMagnetometer()
 
         imu_data = {
-            'yaw': imu.prevYaw[0],
+            'angle': {
+                'x': imu.prevAngle[0][0],
+                'y': imu.prevAngle[0][1],
+                'z': imu.prevAngle[0][2],
+            },
             'acceleration': {
                 'x': accel[0],
                 'y': accel[1],
