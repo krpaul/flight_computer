@@ -1,25 +1,36 @@
+# Simple demo of the MPL3115A2 sensor.
+# Will read the pressure and temperature and print them out every second.
+# Author: Tony DiCola
 import time
 
 import board
 import busio
-import adafruit_bme280
 
-# Create library object using our Bus I2C port
+import adafruit_mpl3115a2
+
+
+# Initialize the I2C bus.
 i2c = busio.I2C(board.SCL, board.SDA)
-bme280 = adafruit_bme280.Adafruit_BME280_I2C(i2c)
 
-# OR create library object using our Bus SPI port
-# spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-# bme_cs = digitalio.DigitalInOut(board.D10)
-# bme280 = adafruit_bme280.Adafruit_BME280_SPI(spi, bme_cs)
+# Initialize the MPL3115A2.
+sensor = adafruit_mpl3115a2.MPL3115A2(i2c)
+# Alternatively you can specify a different I2C address for the device:
+#sensor = adafruit_mpl3115a2.MPL3115A2(i2c, address=0x10)
 
-# change this to match the location's pressure (hPa) at sea level
-bme280.sea_level_pressure = 103.0
+# You can configure the pressure at sealevel to get better altitude estimates.
+# This value has to be looked up from your local weather forecast or meteorlogical
+# reports.  It will change day by day and even hour by hour with weather
+# changes.  Remember altitude estimation from barometric pressure is not exact!
+# Set this to a value in pascals:
+sensor.sealevel_pressure = 102250
 
+# Main loop to read the sensor values and print them every second.
 while True:
-        print("\nTemperature: %0.1f C" % bme280.temperature)
-        print("Humidity: %0.1f %%" % bme280.humidity)
-        print("Pressure: %0.1f hPa" % bme280.pressure)
-        print("Altitude = %0.2f meters" % bme280.altitude)
-        time.sleep(2)
+    pressure = sensor.pressure
+    print('Pressure: {0:0.3f} pascals'.format(pressure))
+    altitude = sensor.altitude
+    print('Altitude: {0:0.3f} meters'.format(altitude))
+    temperature = sensor.temperature
+    print('Temperature: {0:0.3f} degrees Celsius'.format(temperature))
+    time.sleep(1.0)
 
